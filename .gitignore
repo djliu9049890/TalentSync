@@ -1,15 +1,27 @@
+<<<<<<< HEAD
+=======
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+>>>>>>> e480a01c6006524f0c5e40f4654df0fdd7cc2649
 # dependencies
 /node_modules
 /.pnp
 .pnp.js
+<<<<<<< HEAD
 .yarn/install-state.gz
+=======
+>>>>>>> e480a01c6006524f0c5e40f4654df0fdd7cc2649
 
 # testing
 /coverage
 
 # next.js
 /.next/
+<<<<<<< HEAD
 out/
+=======
+/out/
+>>>>>>> e480a01c6006524f0c5e40f4654df0fdd7cc2649
 
 # production
 /build
@@ -25,6 +37,10 @@ yarn-error.log*
 
 # local env files
 .env*.local
+<<<<<<< HEAD
+=======
+.env
+>>>>>>> e480a01c6006524f0c5e40f4654df0fdd7cc2649
 
 # vercel
 .vercel

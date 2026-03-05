@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # TalentSync – Job Board (React + TypeScript + Next.js)
 
 A clean, modern job board UI inspired by TalentSync: header with search, filter sidebar, and job listing cards. An underrated resource in recruiting is finding jobs from recruiter posts directly as the recruiter contact is directly available for you to dm on LinkedIn. Obviously you can't follow every recruiter in the world. TalentSync collects a group of known recruiters and adds jobs to a job pool whenever a recruiters in the pool posts.
@@ -33,3 +34,7 @@ npm start
 - `src/data/mockJobs.ts` – Mock jobs, recruiters, and filter options
 
 Replace mock data with your API or CMS when ready.
+=======
+# TalentSync
+An underrated resource in recruiting is finding jobs from recruiter posts directly as the recruiter contact is directly available for you to dm on LinkedIn. Obviously you can't follow every recruiter in the world. TalentSync collects a group of known recruiters and adds jobs to a job pool whenever a recruiters in the pool posts.
+>>>>>>> e480a01c6006524f0c5e40f4654df0fdd7cc2649
