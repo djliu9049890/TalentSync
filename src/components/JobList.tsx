@@ -44,7 +44,7 @@ export default function JobList() {
         {jobs.map((job) => (
           <div
             key={job.id}
-            className="rounded-xl bg-white p-4 shadow-sm sm:p-6"
+            className="group rounded-xl bg-white p-4 shadow-sm transition-all ease-in-out duration-1000 hover:-translate-y-1 hover:shadow-lg hover:ring-1 hover:ring-gray-300 sm:p-6"
           >
             <JobCard job={job} />
           </div>
