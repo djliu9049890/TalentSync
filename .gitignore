@@ -48,3 +48,6 @@ next-env.d.ts
 
 # venv
 .venv/
+
+# pycache
+backend/__pycache__/

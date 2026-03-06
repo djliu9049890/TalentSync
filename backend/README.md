@@ -47,5 +47,3 @@ These tables include uniqueness constraints for post deduplication based on:
 
 - `linkedin_post_id`
 - `linkedin_post_url`
-- `(recruiter_id, text_hash)`
-

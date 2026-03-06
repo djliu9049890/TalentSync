@@ -11,7 +11,7 @@ interface JobCardProps {
 export default function JobCard({ job }: JobCardProps) {
   return (
     <article className="group flex gap-4">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500 group-hover:text-gray-800">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500 transition-colors group-hover:text-gray-800">
         <Briefcase className="h-6 w-6" />
       </div>
 

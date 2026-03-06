@@ -3,14 +3,16 @@ from __future__ import annotations
 from datetime import datetime
 
 from sqlalchemy import (
+  Boolean,
   Column,
-  Integer,
-  Text,
   DateTime,
   ForeignKey,
+  Integer,
+  Text,
   UniqueConstraint,
 )
-from sqlalchemy.orm import relationship, Mapped
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, relationship
 
 from .db import Base
 
@@ -66,6 +68,26 @@ class Post(Base):
     UniqueConstraint(
       "linkedin_post_url",
       name="uniq_posts_linkedin_post_url",
-    )
+    ),
   )
+
+
+class JobRun(Base):
+  """
+  Tracks executions of background jobs (crawler, TTL cleanup, etc.).
+  """
+
+  __tablename__ = "job_runs"
+
+  id: Mapped[int] = Column(Integer, primary_key=True)
+  job_name: Mapped[str] = Column(Text, nullable=False)
+  started_at: Mapped[datetime] = Column(
+    DateTime(timezone=True),
+    nullable=False,
+    default=datetime.utcnow,
+  )
+  finished_at: Mapped[datetime | None] = Column(DateTime(timezone=True), nullable=True)
+  success: Mapped[bool] = Column(Boolean, nullable=False, default=False)
+  error_message: Mapped[str | None] = Column(Text, nullable=True)
+  details: Mapped[dict | None] = Column(JSONB, nullable=True)
 
