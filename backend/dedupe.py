@@ -11,17 +11,30 @@ def post_exists(
     *,
     recruiter_id: int,
     linkedin_post_id: str | None,
-    linkedin_post_url: str | None
+    linkedin_post_url: str | None,
+    text_hash: str,
 ) -> bool:
-    q = db.query(Post).filter(Post.recruiter_id == recruiter_id)
-
     if linkedin_post_id:
-        q = q.filter(Post.linkedin_post_id == linkedin_post_id)
+        q = db.query(Post).filter(
+            Post.recruiter_id == recruiter_id,
+            Post.linkedin_post_id == linkedin_post_id,
+        )
         if db.query(q.exists()).scalar():
             return True
 
-    q2 = db.query(Post).filter(Post.linkedin_post_url == linkedin_post_url)
-    if db.query(q2.exists()).scalar():
+    if linkedin_post_url:
+        q = db.query(Post).filter(
+            Post.recruiter_id == recruiter_id,
+            Post.linkedin_post_url == linkedin_post_url,
+        )
+        if db.query(q.exists()).scalar():
+            return True
+
+    q = db.query(Post).filter(
+        Post.recruiter_id == recruiter_id,
+        Post.text_hash == text_hash,
+    )
+    if db.query(q.exists()).scalar():
         return True
-    else:
-        return False
+
+    return False

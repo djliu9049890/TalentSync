@@ -9,7 +9,7 @@ from .job_logging import job_run
 from .models import Post
 
 
-RETENTION_DAYS = 90  # ~3 months
+RETENTION_DAYS = 30
 
 
 def delete_expired_posts(db: Session, *, retention_days: int = RETENTION_DAYS) -> int:
@@ -40,4 +40,3 @@ def main() -> None:
 
 if __name__ == "__main__":
   main()
-

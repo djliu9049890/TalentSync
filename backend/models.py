@@ -47,6 +47,12 @@ class Post(Base):
   linkedin_post_url: Mapped[str | None] = Column(Text, nullable=True)
 
   content_text: Mapped[str] = Column(Text, nullable=False)
+  job_title: Mapped[str | None] = Column(Text, nullable=True)
+  company: Mapped[str | None] = Column(Text, nullable=True)
+  location: Mapped[str | None] = Column(Text, nullable=True)
+  employment_type: Mapped[str | None] = Column(Text, nullable=True)
+  salary: Mapped[str | None] = Column(Text, nullable=True)
+  hiring_contact: Mapped[str | None] = Column(Text, nullable=True)
   posted_at: Mapped[datetime] = Column(
     DateTime(timezone=True),
     nullable=False,
@@ -54,6 +60,7 @@ class Post(Base):
   )
   raw_html: Mapped[str | None] = Column(Text, nullable=True)
   text_hash: Mapped[str] = Column(Text, nullable=False)
+  extraction_payload: Mapped[dict | None] = Column(JSONB, nullable=True)
 
   recruiter: Mapped[Recruiter] = relationship(
     "Recruiter",
@@ -90,4 +97,3 @@ class JobRun(Base):
   success: Mapped[bool] = Column(Boolean, nullable=False, default=False)
   error_message: Mapped[str | None] = Column(Text, nullable=True)
   details: Mapped[dict | None] = Column(JSONB, nullable=True)
-

@@ -6,6 +6,7 @@ This folder contains the database layer for the crawler that ingests recruiter p
 
 - Python 3.11+ (recommended)
 - A running Postgres instance
+- Google Chrome installed locally
 
 Install Python dependencies (from project root):
 
@@ -30,6 +31,9 @@ The backend loads `backend/.env` automatically if it exists.
 
 If `DATABASE_URL` is not set, it falls back to a local Postgres URL (see `config.py`).
 
+For LinkedIn browser access, Selenium uses the `LINKEDIN_COOKIE_LI_AT` cookie
+from `backend/.env` to load authenticated profile pages.
+
 ## 3. Creating the schema
 
 Make sure Postgres is running and the target database already exists, then run (from project root):
@@ -42,8 +46,35 @@ This will create (if they do not already exist):
 
 - `recruiters` table
 - `posts` table
+- `job_runs` table
 
 These tables include uniqueness constraints for post deduplication based on:
 
 - `linkedin_post_id`
 - `linkedin_post_url`
+
+## 4. Existing databases
+
+`python -m backend.init_db` creates missing tables, but it does not alter an
+existing Supabase schema. If your `posts` table already exists, apply:
+
+```bash
+psql "$DATABASE_URL" -f backend/migrations/20260316_add_post_metadata.sql
+```
+
+That migration adds structured extraction columns such as `job_title`,
+`company`, `location`, `employment_type`, `salary`, `hiring_contact`, and
+`extraction_payload`.
+
+## 5. Scheduled jobs
+
+- `python -m backend.crawler_main` selects recruiters whose `crawl_slot_hour`
+  matches the current host-machine hour, fetches the full LinkedIn profile HTML
+  in Selenium, hands that HTML to the parser layer, classifies job posts, and
+  records a `job_runs` summary.
+- `python -m backend.maintenance` deletes posts older than 30 days and records
+  the cleanup result in `job_runs`.
+
+The fetch and HTML parsing layers are intentionally left pluggable so a
+browser-based LinkedIn fetcher and an LLM-backed HTML parser can be added
+without changing the scheduling or persistence flow.
