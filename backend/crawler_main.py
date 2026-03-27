@@ -3,9 +3,11 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Callable
 import json
+from pathlib import Path
 
 from sqlalchemy.orm import Session
 
+from . import config as _config  # noqa: F401  - importing loads backend/.env
 from .classifier import classify_post
 from .db import SessionLocal
 from .dedupe import compute_text_hash, post_exists
@@ -18,7 +20,9 @@ from .source_posts import SourcePost
 
 HtmlFetcher = Callable[[Recruiter], str]
 Parser = Callable[[str], list[SourcePost]]
-MAX_POSTS_PER_RECRUITER = 20
+DEBUG_RENDERED_HTML_PATH = (
+  Path(__file__).resolve().parent / "debugging" / "linkedin_gkangj_rendered.html"
+)
 
 
 def fetch_profile_html_for_recruiter(recruiter: Recruiter) -> str:
@@ -29,6 +33,16 @@ def fetch_profile_html_for_recruiter(recruiter: Recruiter) -> str:
   normalizing it into individual SourcePost entries.
   """
   return fetch_profile_html(recruiter.linkedin_profile_url)
+
+
+def save_debug_profile_html(profile_html: str) -> None:
+  """
+  Save the most recently fetched rendered LinkedIn profile HTML for inspection.
+
+  This intentionally writes to the existing debug filename so the current local
+  inspection workflow continues to work without new file paths.
+  """
+  DEBUG_RENDERED_HTML_PATH.write_text(profile_html, encoding="utf-8")
 
 
 def get_recruiters_for_current_slot(db: Session, *, now: datetime | None = None) -> list[Recruiter]:
@@ -55,19 +69,26 @@ def crawl_recruiter(
   fetch_html: HtmlFetcher = fetch_profile_html_for_recruiter,
   parse_posts: Parser = extract_posts_from_profile_html,
 ) -> int:
+  print(f"Fetching {recruiter.name} profile..............")
   profile_html = fetch_html(recruiter)
-  posts = parse_posts(profile_html)[:MAX_POSTS_PER_RECRUITER]
+  print("Saving profile locally to debug........................")
+  save_debug_profile_html(profile_html)
+  print("Parsing profile...........................")
+  posts = parse_posts(profile_html)
+  print(posts)
+  print("Starting Classification...................")
   new_job_posts = 0
 
   for post in posts:
     classification = classify_post(post.text)
+    print(classification)
 
     if not classification["is_job_post"]:
       continue
 
     text_hash = compute_text_hash(post.text)
 
-    linkedin_post_url = classification["post_url"] or post.url
+    linkedin_post_url = post.url
 
     if post_exists(
       db,
@@ -96,6 +117,7 @@ def crawl_recruiter(
     )
     db.add(db_post)
     new_job_posts += 1
+    print("post " + post.url + " added")
 
   recruiter.last_crawled_at = datetime.now().astimezone()
   db.commit()

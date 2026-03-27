@@ -78,3 +78,7 @@ That migration adds structured extraction columns such as `job_title`,
 The fetch and HTML parsing layers are intentionally left pluggable so a
 browser-based LinkedIn fetcher and an LLM-backed HTML parser can be added
 without changing the scheduling or persistence flow.
+
+Current limitation: the parser currently keeps up to 12 hydrated carousel items
+from the rendered LinkedIn HTML. This is intentionally broader than a
+single-carousel selector so we can keep the HTML matching logic less brittle.

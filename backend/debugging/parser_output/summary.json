@@ -1,0 +1,19 @@
+{
+  "input_html": "/Users/liu21d/Documents/Code/TalentSync/backend/debugging/linkedin_gkangj_rendered.html",
+  "carousel_html": "/Users/liu21d/Documents/Code/TalentSync/backend/debugging/parser_output/carousel.html",
+  "post_count": 2,
+  "posts": [
+    {
+      "index": 1,
+      "html_path": "/Users/liu21d/Documents/Code/TalentSync/backend/debugging/parser_output/posts/post_01.html",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7440090232454279168/",
+      "text_preview": "Sandy G. reposted this Rahul Sharma Rahul Sharma Rahul Sharma \u2022 3rd+ Premium \u2022 3rd+ Scaling Global Network Traffic, Fleet Efficiency & Compute Infra | Architecting High-Scale, Resilient Systems that d"
+    },
+    {
+      "index": 2,
+      "html_path": "/Users/liu21d/Documents/Code/TalentSync/backend/debugging/parser_output/posts/post_02.html",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7432483340676440064/",
+      "text_preview": "Sandy G. reposted this Viviana De La Torre Viviana De La Torre Viviana De La Torre \u2022 3rd+ Premium \u2022 3rd+ Technical Recruiting Researcher at Netflix Technical Recruiting Researcher at Netflix 1mo \u2022 1 m"
+    }
+  ]
+}

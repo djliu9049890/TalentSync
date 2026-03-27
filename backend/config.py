@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from dotenv import load_dotenv
 
@@ -17,10 +18,29 @@ def get_database_url() -> str:
   Defaults to a local Postgres instance suitable for development:
   postgresql+psycopg2://talentsync:talentsync@localhost:5432/talentsync
   """
-  return os.getenv(
+  raw_url = os.getenv(
     "DATABASE_URL",
     "postgresql+psycopg2://talentsync:talentsync@localhost:5432/talentsync",
   )
+  return normalize_database_url(raw_url)
+
+
+def normalize_database_url(database_url: str) -> str:
+  """
+  Normalize provider connection strings into a SQLAlchemy/psycopg2-friendly URL.
+
+  Supabase pooled connection strings may include `pgbouncer=true`, which is not
+  a valid psycopg2 DSN parameter. We strip it here so the runtime can use the
+  pooled host directly.
+  """
+  parts = urlsplit(database_url)
+  query_items = [
+    (key, value)
+    for key, value in parse_qsl(parts.query, keep_blank_values=True)
+    if key.lower() != "pgbouncer"
+  ]
+  normalized_query = urlencode(query_items)
+  return urlunsplit((parts.scheme, parts.netloc, parts.path, normalized_query, parts.fragment))
 
 
 def get_env_flag(name: str, default: bool = False) -> bool:

@@ -38,6 +38,19 @@ Return ONLY valid JSON in this exact schema:
 """
 
 
+def _extract_json_object(text: str) -> dict:
+    text = text.strip()
+
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        start = text.find("{")
+        end = text.rfind("}")
+        if start == -1 or end == -1 or end <= start:
+            raise
+        return json.loads(text[start : end + 1])
+
+
 def classify_post(text: str) -> ClassifiedPost:
     completion = client.responses.create(
         model="gpt-5-nano",
@@ -45,8 +58,8 @@ def classify_post(text: str) -> ClassifiedPost:
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": text},
         ],
-        response_format={"type": "json_object"},
     )
     content = completion.output[0].content[0].text
+    print(content)
     # `content` is JSON string matching ClassifiedPost
-    return json.loads(content)
+    return _extract_json_object(content)
