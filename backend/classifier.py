@@ -51,7 +51,58 @@ def _extract_json_object(text: str) -> dict:
         return json.loads(text[start : end + 1])
 
 
+def _validate_classification_payload(payload: object, raw_content: str) -> ClassifiedPost:
+    if not isinstance(payload, dict):
+        raise RuntimeError(
+            "OpenAI classification did not return a JSON object. "
+            f"Raw content: {raw_content}"
+        )
+
+    required_keys = {
+        "is_job_post",
+        "title",
+        "company",
+        "location",
+        "employment_type",
+        "salary",
+        "post_url",
+        "hiring_contact",
+    }
+    missing_keys = sorted(required_keys.difference(payload.keys()))
+    if missing_keys:
+        raise RuntimeError(
+            "OpenAI classification JSON was missing required keys: "
+            f"{', '.join(missing_keys)}. Raw content: {raw_content}"
+        )
+
+    return payload  # type: ignore[return-value]
+
+
+def _extract_response_text(completion) -> str:
+    output_text = getattr(completion, "output_text", None)
+    if output_text:
+        return output_text
+
+    output = getattr(completion, "output", None) or []
+    for item in output:
+        content_items = getattr(item, "content", None) or []
+        for content in content_items:
+            text = getattr(content, "text", None)
+            if text:
+                return text
+
+    return ""
+
+
+def _debug_completion_summary(completion) -> str:
+    try:
+        return completion.model_dump_json(indent=2)[:2000]
+    except Exception:
+        return repr(completion)
+
+
 def classify_post(text: str) -> ClassifiedPost:
+    print("within classify_post")
     completion = client.responses.create(
         model="gpt-5-nano",
         input=[
@@ -59,7 +110,13 @@ def classify_post(text: str) -> ClassifiedPost:
             {"role": "user", "content": text},
         ],
     )
-    content = completion.output[0].content[0].text
+    content = _extract_response_text(completion)
+    if not content:
+        print("OpenAI completion did not include extractable text.")
+        print(_debug_completion_summary(completion))
+        raise RuntimeError("OpenAI completion did not include extractable text.")
+    print("Content: ")
     print(content)
     # `content` is JSON string matching ClassifiedPost
-    return _extract_json_object(content)
+    payload = _extract_json_object(content)
+    return _validate_classification_payload(payload, content)

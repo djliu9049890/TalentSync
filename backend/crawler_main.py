@@ -75,7 +75,7 @@ def crawl_recruiter(
   save_debug_profile_html(profile_html)
   print("Parsing profile...........................")
   posts = parse_posts(profile_html)
-  print(posts)
+  #print(posts)
   print("Starting Classification...................")
   new_job_posts = 0
 
