@@ -1,16 +1,29 @@
-# TalentSync – Job Board (React + TypeScript + Next.js)
+# TalentSync
 
-A clean, modern job board UI inspired by TalentSync: header with search, filter sidebar, and job listing cards. An underrated resource in recruiting is finding jobs from recruiter posts directly as the recruiter contact is directly available for you to dm on LinkedIn. Obviously you can't follow every recruiter in the world. TalentSync collects a group of known recruiters and adds jobs to a job pool whenever a recruiters in the pool posts.
+TalentSync is a recruiter-post-powered job board. The frontend is a Next.js job
+board prototype, and the backend is a Python crawler pipeline that fetches
+LinkedIn recruiter profiles, parses recent post carousel items, classifies job
+posts with OpenAI, and stores them in Postgres / Supabase.
 
-## Stack
+## Repo stack
+
+### Frontend
 
 - **Next.js 14** (App Router)
 - **React 18**
 - **TypeScript**
 - **Tailwind CSS**
-- **lucide-react** (icons)
+- **lucide-react**
 
-## Run locally
+### Backend
+
+- **Python 3.11+**
+- **SQLAlchemy**
+- **Postgres / Supabase**
+- **Selenium + Chrome**
+- **OpenAI Responses API**
+
+## Frontend local development
 
 ```bash
 npm install
@@ -19,21 +32,39 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Build
+## Frontend production build
 
 ```bash
 npm run build
 npm start
 ```
 
-## Structure
+## Backend overview
 
-- `src/app/` – App router: `layout.tsx`, `page.tsx`, `globals.css`
-- `src/components/` – `Header`, `Sidebar`, `JobList`, `JobCard`
-- `src/data/mockJobs.ts` – Mock jobs, recruiters, and filter options
+The backend lives in `backend/` and currently includes:
 
-Replace mock data with your API or CMS when ready.
-=======
-# TalentSync
-An underrated resource in recruiting is finding jobs from recruiter posts directly as the recruiter contact is directly available for you to dm on LinkedIn. Obviously you can't follow every recruiter in the world. TalentSync collects a group of known recruiters and adds jobs to a job pool whenever a recruiters in the pool posts.
->>>>>>> e480a01c6006524f0c5e40f4654df0fdd7cc2649
+- an hourly crawler: `python -m backend.crawler_main`
+- a nightly cleanup job: `python -m backend.maintenance`
+- SQLAlchemy models for `recruiters`, `posts`, and `job_runs`
+- Selenium-based LinkedIn profile fetching using a `li_at` cookie
+- HTML parsing for LinkedIn carousel items
+- OpenAI-based job post classification and metadata extraction
+
+Current crawler flow:
+
+1. Select recruiters whose `crawl_slot_hour` matches the current hour.
+2. Fetch the recruiter's LinkedIn profile HTML with Selenium.
+3. Parse hydrated carousel items into individual post fragments.
+4. Classify each post with OpenAI.
+5. Dedupe job posts and insert new rows into `posts`.
+6. Record run results in `job_runs`.
+
+For backend setup, env vars, migrations, and debug commands, see
+`backend/README.md` and `backend/debugging/README.md`.
+
+## Repo structure
+
+- `src/app/` - Next.js app router files
+- `src/components/` - frontend UI components
+- `src/data/mockJobs.ts` - mock frontend data
+- `backend/` - crawler, database, parsing, classification, and debug tooling
