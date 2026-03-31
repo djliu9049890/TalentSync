@@ -51,3 +51,8 @@ next-env.d.ts
 
 # pycache
 backend/__pycache__/
+
+# backend debug artifacts
+backend/debugging/linkedin_gkangj_rendered.html
+backend/debugging/__pycache__/
+backend/debugging/parser_output/

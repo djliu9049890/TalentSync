@@ -71,11 +71,11 @@ def crawl_recruiter(
 ) -> int:
   print(f"Fetching {recruiter.name} profile..............")
   profile_html = fetch_html(recruiter)
-  print("Saving profile locally to debug........................")
-  save_debug_profile_html(profile_html)
+  # print("Saving profile locally to debug........................")
+  # save_debug_profile_html(profile_html)
   print("Parsing profile...........................")
   posts = parse_posts(profile_html)
-  #print(posts)
+  # print(posts)
   print("Starting Classification...................")
   new_job_posts = 0
 

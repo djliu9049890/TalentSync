@@ -91,5 +91,16 @@ export const jobs: Job[] = [
   },
 ]
 
-export const employmentTypes = ['Full-time', 'Contract', 'Remote', 'Part-time', 'Freelance'] as const
+export const employmentTypes = ['Full-time', 'Contract', 'Remote', 'Part-time'] as const
 export const experienceLevels = ['Entry', 'Mid-level', 'Senior', 'Lead', 'Executive'] as const
+export const recencyOptions = ['1 day', '1 week', '1 month'] as const
+export const locationOptions = [
+  'Remote',
+  'San Francisco, CA',
+  'New York, NY',
+  'Austin, TX',
+  'Boston, MA',
+  'Los Angeles, CA',
+  'Seattle, WA',
+  'Chicago, IL',
+] as const

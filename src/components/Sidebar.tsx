@@ -1,29 +1,31 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import Image from 'next/image'
+import { useEffect, useMemo, useState } from 'react'
 import {
   BriefcaseBusiness,
   ChartNoAxesColumnIncreasing,
   Check,
   Clock3,
+  ClockArrowUp,
   FileText,
   Filter,
   Flag,
   Globe,
+  MapPin,
   Monitor,
+  Search,
   Star,
   Trophy,
   Workflow,
+  X,
 } from 'lucide-react'
-import { recruiters, employmentTypes, experienceLevels } from '@/data/mockJobs'
+import { employmentTypes, experienceLevels, locationOptions, recencyOptions } from '@/data/mockJobs'
 
 const employmentIcons: Record<(typeof employmentTypes)[number], typeof BriefcaseBusiness> = {
   'Full-time': BriefcaseBusiness,
   Contract: FileText,
   Remote: Monitor,
-  'Part-time': Clock3,
-  Freelance: Globe,
+  'Part-time': Clock3
 }
 
 const experienceIcons: Record<(typeof experienceLevels)[number], typeof BriefcaseBusiness> = {
@@ -32,6 +34,12 @@ const experienceIcons: Record<(typeof experienceLevels)[number], typeof Briefcas
   Senior: Star,
   Lead: Flag,
   Executive: Trophy,
+}
+
+const recencyIcons: Record<(typeof recencyOptions)[number], typeof BriefcaseBusiness> = {
+  '1 day': ClockArrowUp,
+  '1 week': ClockArrowUp,
+  '1 month': ClockArrowUp,
 }
 
 interface FilterOptionProps {
@@ -79,12 +87,16 @@ function FilterOption({ checked, icon: Icon, id, label, onChange }: FilterOption
 export default function Sidebar() {
   const [employment, setEmployment] = useState<Set<string>>(new Set())
   const [experience, setExperience] = useState<Set<string>>(new Set())
-  const [selectedRecruiters, setSelectedRecruiters] = useState<Set<string>>(new Set())
+  const [recency, setRecency] = useState<Set<string>>(new Set())
+  const [locations, setLocations] = useState<Set<string>>(new Set())
+  const [locationQuery, setLocationQuery] = useState('')
+  const [isLocationFocused, setIsLocationFocused] = useState(false)
 
   useEffect(() => {
     const savedEmployment = window.localStorage.getItem('sidebar-employment')
     const savedExperience = window.localStorage.getItem('sidebar-experience')
-    const savedRecruiters = window.localStorage.getItem('sidebar-recruiters')
+    const savedRecency = window.localStorage.getItem('sidebar-recency')
+    const savedLocations = window.localStorage.getItem('sidebar-locations')
 
     if (savedEmployment) {
       setEmployment(new Set(JSON.parse(savedEmployment)))
@@ -92,8 +104,11 @@ export default function Sidebar() {
     if (savedExperience) {
       setExperience(new Set(JSON.parse(savedExperience)))
     }
-    if (savedRecruiters) {
-      setSelectedRecruiters(new Set(JSON.parse(savedRecruiters)))
+    if (savedRecency) {
+      setRecency(new Set(JSON.parse(savedRecency)))
+    }
+    if (savedLocations) {
+      setLocations(new Set(JSON.parse(savedLocations)))
     }
   }, [])
 
@@ -106,8 +121,12 @@ export default function Sidebar() {
   }, [experience])
 
   useEffect(() => {
-    window.localStorage.setItem('sidebar-recruiters', JSON.stringify(Array.from(selectedRecruiters)))
-  }, [selectedRecruiters])
+    window.localStorage.setItem('sidebar-recency', JSON.stringify(Array.from(recency)))
+  }, [recency])
+
+  useEffect(() => {
+    window.localStorage.setItem('sidebar-locations', JSON.stringify(Array.from(locations)))
+  }, [locations])
 
   const toggle = (
     set: React.Dispatch<React.SetStateAction<Set<string>>>,
@@ -124,10 +143,21 @@ export default function Sidebar() {
   const clearAll = () => {
     setEmployment(new Set())
     setExperience(new Set())
-    setSelectedRecruiters(new Set())
+    setRecency(new Set())
+    setLocations(new Set())
+    setLocationQuery('')
   }
 
-  const hasFilters = employment.size > 0 || experience.size > 0 || selectedRecruiters.size > 0
+  const hasFilters =
+    employment.size > 0 || experience.size > 0 || recency.size > 0 || locations.size > 0
+
+  const filteredLocations = useMemo(() => {
+    const query = locationQuery.trim().toLowerCase()
+    if (!query) return locationOptions
+    return locationOptions.filter((location) => location.toLowerCase().includes(query))
+  }, [locationQuery])
+
+  const shouldShowLocationResults = isLocationFocused && filteredLocations.length > 0
 
   return (
     <aside className="flex w-72 shrink-0 flex-col gap-4">
@@ -182,53 +212,94 @@ export default function Sidebar() {
           </ul>
         </section>
 
-        <section>
-          <h3 className="mb-4 text-[15px] font-semibold text-[#2d3446]">Trusted Recruiters</h3>
-          <ul className="space-y-3">
-            {recruiters.map((r) => {
-              const checked = selectedRecruiters.has(r.id)
+        <section className="mb-8">
+          <h3 className="mb-4 text-[15px] font-semibold text-[#2d3446]">Location</h3>
+          <div className="relative">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa3b2]" />
+              <input
+                type="text"
+                value={locationQuery}
+                onChange={(event) => setLocationQuery(event.target.value)}
+                onFocus={() => setIsLocationFocused(true)}
+                onBlur={() => {
+                  window.setTimeout(() => setIsLocationFocused(false), 120)
+                }}
+                placeholder="Search locations"
+                className="w-full rounded-xl border border-[#e6e9ef] bg-white py-3 pl-9 pr-3 text-sm text-[#2d3446] placeholder:text-[#9aa3b2] transition focus:border-[#b8d0fa] focus:outline-none focus:ring-2 focus:ring-[#dfeafe]"
+              />
+            </div>
 
-              return (
-                <li key={r.id}>
-                  <input
-                    type="checkbox"
-                    id={`recruiter-${r.id}`}
-                    checked={checked}
-                    onChange={() => toggle(setSelectedRecruiters, r.id)}
-                    className="sr-only"
-                  />
-                  <label
-                    htmlFor={`recruiter-${r.id}`}
-                    className={`flex cursor-pointer items-center justify-between rounded-xl border px-4 py-3 transition-colors ${
-                      checked
-                        ? 'border-[#b8d0fa] bg-[#f1f6ff]'
-                        : 'border-[#e6e9ef] bg-white hover:border-[#c6cfda]'
-                    }`}
-                  >
-                    <span className="flex min-w-0 items-center gap-3">
-                      <Image
-                        src={r.avatar}
-                        alt={r.name}
-                        width={28}
-                        height={28}
-                        className="h-7 w-7 shrink-0 rounded-full object-cover bg-[#eef1f5]"
-                        unoptimized
-                      />
-                      <span className={`truncate text-sm font-medium ${checked ? 'text-[#6f98df]' : 'text-[#5f6678]'}`}>
-                        {r.name}
+            {shouldShowLocationResults && (
+              <ul className="absolute left-0 right-0 top-[calc(100%+8px)] z-20 max-h-56 space-y-2 overflow-y-auto rounded-xl border border-[#e6e9ef] bg-white p-2 shadow-[0_10px_30px_rgba(15,23,42,0.08)]">
+                {filteredLocations.map((location) => (
+                  <li key={location}>
+                    <button
+                      type="button"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => {
+                        toggle(setLocations, location)
+                        setLocationQuery('')
+                        setIsLocationFocused(true)
+                      }}
+                      className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition ${
+                        locations.has(location)
+                          ? 'bg-[#f1f6ff] text-[#6f98df]'
+                          : 'text-[#5f6678] hover:bg-[#f8faff]'
+                      }`}
+                    >
+                      <span className="flex items-center gap-3">
+                        <MapPin className="h-4 w-4" />
+                        <span className="text-sm font-medium">{location}</span>
                       </span>
-                    </span>
-                    {checked ? (
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#86a8e6]">
-                        <Check className="h-3 w-3 text-[#f6f9ff]" strokeWidth={3} />
-                      </span>
-                    ) : (
-                      <span className="h-5 w-5" />
-                    )}
-                  </label>
-                </li>
-              )
-            })}
+                      {locations.has(location) && (
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#86a8e6]">
+                          <Check className="h-3 w-3 text-[#f6f9ff]" strokeWidth={3} />
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {isLocationFocused && filteredLocations.length === 0 && locationQuery.trim() && (
+              <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-20 rounded-xl border border-[#e6e9ef] bg-white px-4 py-3 text-sm text-[#7e8699] shadow-[0_10px_30px_rgba(15,23,42,0.08)]">
+                No matching locations
+              </div>
+            )}
+          </div>
+
+          {locations.size > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {Array.from(locations).map((location) => (
+                <button
+                  key={location}
+                  type="button"
+                  onClick={() => toggle(setLocations, location)}
+                  className="inline-flex items-center gap-1 rounded-full bg-[#eef3ff] px-3 py-1.5 text-xs font-medium text-[#5e86d2] transition hover:bg-[#e2ebff]"
+                >
+                  <span>{location}</span>
+                  <X className="h-3 w-3" />
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section>
+          <h3 className="mb-4 text-[15px] font-semibold text-[#2d3446]">Date Posted</h3>
+          <ul className="space-y-3">
+            {recencyOptions.map((option) => (
+              <FilterOption
+                key={option}
+                id={`recency-${option}`}
+                checked={recency.has(option)}
+                onChange={() => toggle(setRecency, option)}
+                icon={recencyIcons[option]}
+                label={option}
+              />
+            ))}
           </ul>
         </section>
       </div>
