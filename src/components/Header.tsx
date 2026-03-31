@@ -31,7 +31,7 @@ export default function Header() {
           </a>
           <button className="flex gap-2 rounded-lg bg-[#08A265] px-6 py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors">
             <span className="text-[20px] mt-[0.5px] font-thin">+</span>
-            <span className="text-[13px] font-medium">Post a Job</span>
+            <span className="text-[14px] font-medium">Post a Job</span>
           </button>
         </div>
       </div>

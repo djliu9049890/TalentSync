@@ -88,7 +88,7 @@ def crawl_recruiter(
 
     text_hash = compute_text_hash(post.text)
 
-    linkedin_post_url = classification["post_url"] or post.url
+    linkedin_post_url = post.url or classification["post_url"]
     hiring_contact_name = classification["hiring_contact_name"] or recruiter.name
     hiring_contact_linkedin_url = (
       classification["hiring_contact_linkedin_url"] or recruiter.linkedin_profile_url
@@ -116,6 +116,7 @@ def crawl_recruiter(
       location=classification["location"],
       employment_type=classification["employment_type"],
       experience_level=classification["experience_level"],
+      skills=classification["skills"],
       salary=classification["salary"],
       hiring_contact_name=hiring_contact_name,
       hiring_contact_linkedin_url=hiring_contact_linkedin_url,
@@ -127,6 +128,7 @@ def crawl_recruiter(
 
   recruiter.last_crawled_at = datetime.now().astimezone()
   db.commit()
+  print(str(new_job_posts) + " posts added.......")
   return new_job_posts
 
 

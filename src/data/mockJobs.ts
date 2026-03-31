@@ -15,17 +15,21 @@ export interface Job {
   postedBy: Recruiter
 }
 
-// Placeholder avatars (initials); replace with real image URLs if desired
-const avatar = (initials: string) =>
+// Placeholder avatars in a LinkedIn-style silhouette treatment.
+const avatar = () =>
   `data:image/svg+xml,${encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="%236b7280"><circle cx="16" cy="16" r="16" fill="%23e5e7eb"/><text x="16" y="20" text-anchor="middle" font-size="12" font-family="system-ui,sans-serif" fill="%234b5563">${initials}</text></svg>`
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="16" fill="#e6e1db"/>
+      <circle cx="16" cy="12" r="6.2" fill="#829cb6"/>
+      <path d="M4.8 29.2c2.6-5.7 6.8-8.6 11.2-8.6 4.4 0 8.6 2.9 11.2 8.6" fill="#9ab0c5"/>
+    </svg>`
   )}`
 
 export const recruiters: Recruiter[] = [
-  { id: '1', name: 'Sarah Jenkins', avatar: avatar('SJ') },
-  { id: '2', name: 'Marcus Chen', avatar: avatar('MC') },
-  { id: '3', name: 'Emily Rodriguez', avatar: avatar('ER') },
-  { id: '4', name: 'David Kim', avatar: avatar('DK') },
+  { id: '1', name: 'Sarah Jenkins', avatar: avatar() },
+  { id: '2', name: 'Marcus Chen', avatar: avatar() },
+  { id: '3', name: 'Emily Rodriguez', avatar: avatar() },
+  { id: '4', name: 'David Kim', avatar: avatar() },
 ]
 
 export const jobs: Job[] = [
@@ -95,12 +99,12 @@ export const employmentTypes = ['Full-time', 'Contract', 'Remote', 'Part-time'] 
 export const experienceLevels = ['Entry', 'Mid-level', 'Senior', 'Lead', 'Executive'] as const
 export const recencyOptions = ['1 day', '1 week', '1 month'] as const
 export const locationOptions = [
-  'Remote',
-  'San Francisco, CA',
-  'New York, NY',
   'Austin, TX',
   'Boston, MA',
-  'Los Angeles, CA',
-  'Seattle, WA',
   'Chicago, IL',
+  'Los Angeles, CA',
+  'New York, NY',
+  'Remote',
+  'San Francisco, CA',
+  'Seattle, WA',
 ] as const

@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from sqlalchemy import (
+  ARRAY,
   Boolean,
   Column,
   DateTime,
@@ -52,6 +53,7 @@ class Post(Base):
   location: Mapped[str | None] = Column(Text, nullable=True)
   employment_type: Mapped[str | None] = Column(Text, nullable=True)
   experience_level: Mapped[str | None] = Column(Text, nullable=True)
+  skills: Mapped[list[str] | None] = Column(ARRAY(Text), nullable=True)
   salary: Mapped[str | None] = Column(Text, nullable=True)
   hiring_contact_name: Mapped[str | None] = Column(Text, nullable=True)
   hiring_contact_linkedin_url: Mapped[str | None] = Column(Text, nullable=True)

@@ -55,7 +55,7 @@ def _extract_post_text(post_node: Tag) -> str:
 def _extract_post_url(post_node: Tag) -> str | None:
   for link in post_node.find_all("a", href=True):
     href = str(link["href"]).strip()
-    if "/feed/update/" not in href:
+    if "/feed/update/" not in href: # brittle, if linkedin changes this API route, this will break, you could look at using data-urn to extra auth
       continue
     if href.startswith("http://") or href.startswith("https://"):
       return href

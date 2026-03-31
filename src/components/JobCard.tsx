@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { Briefcase, MapPin, Clock, Check, ChevronRight } from 'lucide-react'
 import type { Job } from '@/data/mockJobs'
 
@@ -51,19 +50,19 @@ export default function JobCard({ job }: JobCardProps) {
         </div>
 
         <div className="mt-1 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Image
+          <a
+            href="#"
+            className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-gray-50"
+          >
+            <img
               src={job.postedBy.avatar}
               alt={job.postedBy.name}
-              width={24}
-              height={24}
               className="h-6 w-6 rounded-full object-cover bg-gray-200"
-              unoptimized
             />
             <span className="text-sm text-gray-500 font-[450]">
               Posted by {job.postedBy.name}
             </span>
-          </div>
+          </a>
           <a
             href="#"
             className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400 hover:text-gray-900"

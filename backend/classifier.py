@@ -7,13 +7,14 @@ client = OpenAI()  # assumes OPENAI_API_KEY env var
 
 class ClassifiedPost(TypedDict):
     is_job_post: bool
-    title: str | None
-    company: str | None
+    title: str
+    company: str
     location: str | None
-    employment_type: str | None
-    experience_level: str | None
+    employment_type: str
+    experience_level: str
+    skills: list[str]
     salary: str | None
-    post_url: str | None
+    post_url: str
     hiring_contact_name: str | None
     hiring_contact_linkedin_url: str | None
 
@@ -50,6 +51,7 @@ Return ONLY valid JSON in this exact schema:
   "location": string | null,
   "employment_type": "Full-time" | "Contract" | "Remote" | "Part-time",
   "experience_level": "Entry" | "Mid-level" | "Senior" | "Lead" | "Executive",
+  "skills": string[],
   "salary": string | null,
   "post_url": string,
   "hiring_contact_name": string | null,
@@ -59,6 +61,9 @@ Return ONLY valid JSON in this exact schema:
 If the post is a job post, make your best judgment and always choose exactly one
 employment_type and exactly one experience_level from the allowed options.
 Do not return null for those two fields when is_job_post is true.
+For job posts, return a list of the most relevant hard skills, tools, or
+technologies mentioned or strongly implied by the post. Prefer concise canonical
+skill names like "React", "Python", "SQL", "AWS", "Figma". Return up to 10.
 """
 
 
@@ -89,6 +94,7 @@ def _validate_classification_payload(payload: object, raw_content: str) -> Class
         "location",
         "employment_type",
         "experience_level",
+        "skills",
         "salary",
         "post_url",
         "hiring_contact_name",
@@ -143,6 +149,29 @@ def _validate_job_post_fields(payload: ClassifiedPost, raw_content: str) -> Clas
             f"Raw content: {raw_content}"
         )
 
+    skills = payload["skills"]
+    if not isinstance(skills, list):
+        raise RuntimeError(
+            "OpenAI classification returned a non-list skills field for a job post. "
+            f"Raw content: {raw_content}"
+        )
+
+    normalized_skills = []
+    seen_skills = set()
+    for skill in skills:
+        if not isinstance(skill, str):
+            continue
+        normalized_skill = skill.strip()
+        if not normalized_skill:
+            continue
+        dedupe_key = normalized_skill.casefold()
+        if dedupe_key in seen_skills:
+            continue
+        seen_skills.add(dedupe_key)
+        normalized_skills.append(normalized_skill)
+
+    payload["skills"] = normalized_skills[:10]
+
     return payload
 
 
@@ -170,7 +199,6 @@ def _debug_completion_summary(completion) -> str:
 
 
 def classify_post(text: str) -> ClassifiedPost:
-    print("within classify_post")
     completion = client.responses.create(
         model="gpt-5-nano",
         input=[
