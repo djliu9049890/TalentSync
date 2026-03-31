@@ -4,13 +4,14 @@ import JobList from '@/components/JobList'
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
+    <div className="min-h-screen flex flex-col bg-[#f8faf8]">
       <Header />
-      <main className="flex flex-1 p-10">
-        <div className="sticky top-24 self-start">
+      <main className="relative flex flex-1 p-10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(214,245,220,0.68),_transparent_22%),linear-gradient(120deg,_rgba(240,248,241,0.82)_0%,_rgba(248,249,246,0.9)_28%,_rgba(221,235,255,0.7)_70%,_rgba(248,250,255,0.96)_100%)]" />
+        <div className="relative sticky top-0 self-start">
           <Sidebar />
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="relative flex-1 min-w-0">
           <div className="mx-auto pl-20 pr-10">
             <JobList />
           </div>
