@@ -88,7 +88,11 @@ def crawl_recruiter(
 
     text_hash = compute_text_hash(post.text)
 
-    linkedin_post_url = post.url
+    linkedin_post_url = classification["post_url"] or post.url
+    hiring_contact_name = classification["hiring_contact_name"] or recruiter.name
+    hiring_contact_linkedin_url = (
+      classification["hiring_contact_linkedin_url"] or recruiter.linkedin_profile_url
+    )
 
     if post_exists(
       db,
@@ -111,8 +115,10 @@ def crawl_recruiter(
       company=classification["company"],
       location=classification["location"],
       employment_type=classification["employment_type"],
+      experience_level=classification["experience_level"],
       salary=classification["salary"],
-      hiring_contact=classification["hiring_contact"],
+      hiring_contact_name=hiring_contact_name,
+      hiring_contact_linkedin_url=hiring_contact_linkedin_url,
       extraction_payload=classification,
     )
     db.add(db_post)

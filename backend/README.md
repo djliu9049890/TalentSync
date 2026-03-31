@@ -63,7 +63,8 @@ psql "$DATABASE_URL" -f backend/migrations/20260316_add_post_metadata.sql
 ```
 
 That migration adds structured extraction columns such as `job_title`,
-`company`, `location`, `employment_type`, `salary`, `hiring_contact`, and
+`company`, `location`, `employment_type`, `experience_level`, `salary`,
+`hiring_contact_name`, `hiring_contact_linkedin_url`, and
 `extraction_payload`.
 
 ## 5. Scheduled jobs

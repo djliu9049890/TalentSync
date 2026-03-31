@@ -11,9 +11,27 @@ class ClassifiedPost(TypedDict):
     company: str | None
     location: str | None
     employment_type: str | None
+    experience_level: str | None
     salary: str | None
     post_url: str | None
-    hiring_contact: str | None
+    hiring_contact_name: str | None
+    hiring_contact_linkedin_url: str | None
+
+
+EMPLOYMENT_TYPE_OPTIONS = (
+    "Full-time",
+    "Contract",
+    "Remote",
+    "Part-time",
+)
+
+EXPERIENCE_LEVEL_OPTIONS = (
+    "Entry",
+    "Mid-level",
+    "Senior",
+    "Lead",
+    "Executive",
+)
 
 SYSTEM_PROMPT = """
 You are a job-post classifier and extractor.
@@ -27,14 +45,20 @@ truth and ignore styling or layout markup.
 Return ONLY valid JSON in this exact schema:
 {
   "is_job_post": boolean,
-  "title": string | null,
-  "company": string | null,
+  "title": string,
+  "company": string,
   "location": string | null,
-  "employment_type": string | null,
+  "employment_type": "Full-time" | "Contract" | "Remote" | "Part-time",
+  "experience_level": "Entry" | "Mid-level" | "Senior" | "Lead" | "Executive",
   "salary": string | null,
-  "post_url": string | null,
-  "hiring_contact": string | null
+  "post_url": string,
+  "hiring_contact_name": string | null,
+  "hiring_contact_linkedin_url": string | null
 }
+
+If the post is a job post, make your best judgment and always choose exactly one
+employment_type and exactly one experience_level from the allowed options.
+Do not return null for those two fields when is_job_post is true.
 """
 
 
@@ -64,9 +88,11 @@ def _validate_classification_payload(payload: object, raw_content: str) -> Class
         "company",
         "location",
         "employment_type",
+        "experience_level",
         "salary",
         "post_url",
-        "hiring_contact",
+        "hiring_contact_name",
+        "hiring_contact_linkedin_url",
     }
     missing_keys = sorted(required_keys.difference(payload.keys()))
     if missing_keys:
@@ -76,6 +102,48 @@ def _validate_classification_payload(payload: object, raw_content: str) -> Class
         )
 
     return payload  # type: ignore[return-value]
+
+
+def _validate_job_post_fields(payload: ClassifiedPost, raw_content: str) -> ClassifiedPost:
+    if not payload["is_job_post"]:
+        return payload
+
+    title = payload["title"]
+    if not isinstance(title, str) or not title.strip():
+        raise RuntimeError(
+            "OpenAI classification returned an empty title for a job post. "
+            f"Raw content: {raw_content}"
+        )
+
+    company = payload["company"]
+    if not isinstance(company, str) or not company.strip():
+        raise RuntimeError(
+            "OpenAI classification returned an empty company for a job post. "
+            f"Raw content: {raw_content}"
+        )
+
+    employment_type = payload["employment_type"]
+    if employment_type not in EMPLOYMENT_TYPE_OPTIONS:
+        raise RuntimeError(
+            "OpenAI classification returned an invalid employment_type. "
+            f"Expected one of {EMPLOYMENT_TYPE_OPTIONS}. Raw content: {raw_content}"
+        )
+
+    experience_level = payload["experience_level"]
+    if experience_level not in EXPERIENCE_LEVEL_OPTIONS:
+        raise RuntimeError(
+            "OpenAI classification returned an invalid experience_level. "
+            f"Expected one of {EXPERIENCE_LEVEL_OPTIONS}. Raw content: {raw_content}"
+        )
+
+    post_url = payload["post_url"]
+    if not isinstance(post_url, str) or not post_url.strip():
+        raise RuntimeError(
+            "OpenAI classification returned an empty post_url for a job post. "
+            f"Raw content: {raw_content}"
+        )
+
+    return payload
 
 
 def _extract_response_text(completion) -> str:
@@ -119,4 +187,5 @@ def classify_post(text: str) -> ClassifiedPost:
     print(content)
     # `content` is JSON string matching ClassifiedPost
     payload = _extract_json_object(content)
-    return _validate_classification_payload(payload, content)
+    validated_payload = _validate_classification_payload(payload, content)
+    return _validate_job_post_fields(validated_payload, content)
