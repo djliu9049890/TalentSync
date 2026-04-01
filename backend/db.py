@@ -13,6 +13,15 @@ class Base(DeclarativeBase):
 engine = create_engine(
   get_database_url(),
   pool_pre_ping=True,
+  pool_recycle=300,
+  pool_use_lifo=True,
+  connect_args={
+    "application_name": "talentsync-crawler",
+    "keepalives": 1,
+    "keepalives_idle": 30,
+    "keepalives_interval": 10,
+    "keepalives_count": 5,
+  },
 )
 
 SessionLocal = scoped_session(
@@ -34,4 +43,3 @@ def get_db():
     yield db
   finally:
     db.close()
-
