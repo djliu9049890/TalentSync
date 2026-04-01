@@ -14,7 +14,7 @@ class ClassifiedPost(TypedDict):
     experience_level: str
     skills: list[str]
     salary: str | None
-    post_url: str
+    post_url: str | None
     hiring_contact_name: str | None
     hiring_contact_linkedin_url: str | None
 
@@ -53,7 +53,7 @@ Return ONLY valid JSON in this exact schema:
   "experience_level": "Entry" | "Mid-level" | "Senior" | "Lead" | "Executive",
   "skills": string[],
   "salary": string | null,
-  "post_url": string,
+  "post_url": string | null,
   "hiring_contact_name": string | null,
   "hiring_contact_linkedin_url": string | null
 }
@@ -140,13 +140,6 @@ def _validate_job_post_fields(payload: ClassifiedPost, raw_content: str) -> Clas
         raise RuntimeError(
             "OpenAI classification returned an invalid experience_level. "
             f"Expected one of {EXPERIENCE_LEVEL_OPTIONS}. Raw content: {raw_content}"
-        )
-
-    post_url = payload["post_url"]
-    if not isinstance(post_url, str) or not post_url.strip():
-        raise RuntimeError(
-            "OpenAI classification returned an empty post_url for a job post. "
-            f"Raw content: {raw_content}"
         )
 
     skills = payload["skills"]
