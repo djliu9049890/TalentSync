@@ -26,7 +26,12 @@ interface JobListProps {
 }
 
 export default function JobList({ jobs }: JobListProps) {
-  const [tab, setTab] = useState<'latest' | 'popular'>('latest')
+  const [tab, setTab] = useState<'latest' | 'alphabetical'>('latest')
+
+  const displayedJobs = 
+    tab === 'alphabetical'
+      ? [...jobs].sort((a, b) => a.title.localeCompare(b.title))
+      : jobs
 
   return (
     <div className="min-w-0 flex-1">
@@ -50,20 +55,20 @@ export default function JobList({ jobs }: JobListProps) {
             Latest
           </button>
           <button
-            onClick={() => setTab('popular')}
+            onClick={() => setTab('alphabetical')}
             className={`rounded-full px-5 py-2 text-sm transition-colors ${
-              tab === 'popular'
+              tab === 'alphabetical'
                 ? 'bg-gray-100 font-semibold text-gray-900'
                 : 'font-normal text-gray-500 hover:text-gray-700'
             }`}
           >
-            Popular
+            Sorted
           </button>
         </div>
       </div>
 
       <div className="flex flex-col gap-4">
-        {jobs.map((job) => (
+        {displayedJobs.map((job) => (
           <div
             key={job.id}
             className="group rounded-xl bg-white p-4 shadow-sm transition-all ease-in-out duration-1000 hover:-translate-y-1 hover:shadow-lg hover:ring-1 hover:ring-gray-300 sm:p-7"

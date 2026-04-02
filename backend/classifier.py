@@ -165,6 +165,18 @@ def _validate_job_post_fields(payload: ClassifiedPost, raw_content: str) -> Clas
 
     payload["skills"] = normalized_skills[:10]
 
+    location = payload["location"]
+    if isinstance(location, str):
+        normalized_locations = sorted(
+            {
+                part.strip()
+                for part in location.split(";")
+                if part.strip()
+            },
+            key=str.casefold,
+        )
+        payload["location"] = "; ".join(normalized_locations) if normalized_locations else None
+
     return payload
 
 
