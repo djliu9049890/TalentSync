@@ -3,23 +3,7 @@
 import { useState } from 'react'
 import { Sparkles } from 'lucide-react'
 import JobCard from './JobCard'
-
-export type Job = {
-  id: string
-  title: string
-  company: string
-  location: string
-  postedAt: string
-  salary: string
-  skills: string[]
-  postedBy: {
-    id: string
-    name: string
-    avatar: string
-    url: string
-  }
-  postUrl: string
-}
+import type { Job } from './jobTypes'
 
 interface JobListProps {
   jobs: Job[]

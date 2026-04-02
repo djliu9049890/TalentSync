@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   BriefcaseBusiness,
   ChartNoAxesColumnIncreasing,
@@ -19,6 +19,8 @@ import {
   Workflow,
   X,
 } from 'lucide-react'
+import type { Dispatch, SetStateAction } from 'react'
+import type { JobFilters } from '@/components/jobTypes'
 import { employmentTypes, experienceLevels, locationOptions, recencyOptions } from '@/data/mockJobs'
 
 const employmentIcons: Record<(typeof employmentTypes)[number], typeof BriefcaseBusiness> = {
@@ -48,13 +50,21 @@ interface FilterOptionProps {
   id: string
   label: string
   onChange: () => void
+  type?: 'checkbox' | 'radio'
 }
 
-function FilterOption({ checked, icon: Icon, id, label, onChange }: FilterOptionProps) {
+function FilterOption({
+  checked,
+  icon: Icon,
+  id,
+  label,
+  onChange,
+  type = 'checkbox',
+}: FilterOptionProps) {
   return (
     <li>
       <input
-        type="checkbox"
+        type={type}
         id={id}
         checked={checked}
         onChange={onChange}
@@ -84,67 +94,50 @@ function FilterOption({ checked, icon: Icon, id, label, onChange }: FilterOption
   )
 }
 
-export default function Sidebar() {
-  const [employment, setEmployment] = useState<Set<string>>(new Set())
-  const [experience, setExperience] = useState<Set<string>>(new Set())
-  const [recency, setRecency] = useState<Set<string>>(new Set())
-  const [locations, setLocations] = useState<Set<string>>(new Set())
+interface SidebarProps {
+  filters: JobFilters
+  onFiltersChange: Dispatch<SetStateAction<JobFilters>>
+}
+
+export default function Sidebar({ filters, onFiltersChange }: SidebarProps) {
   const [locationQuery, setLocationQuery] = useState('')
   const [isLocationFocused, setIsLocationFocused] = useState(false)
 
-  useEffect(() => {
-    const savedEmployment = window.localStorage.getItem('sidebar-employment')
-    const savedExperience = window.localStorage.getItem('sidebar-experience')
-    const savedRecency = window.localStorage.getItem('sidebar-recency')
-    const savedLocations = window.localStorage.getItem('sidebar-locations')
+  const employment = new Set(filters.employment)
+  const experience = new Set(filters.experience)
+  const recency = new Set(filters.recency)
+  const locations = new Set(filters.locations)
 
-    if (savedEmployment) {
-      setEmployment(new Set(JSON.parse(savedEmployment)))
-    }
-    if (savedExperience) {
-      setExperience(new Set(JSON.parse(savedExperience)))
-    }
-    if (savedRecency) {
-      setRecency(new Set(JSON.parse(savedRecency)))
-    }
-    if (savedLocations) {
-      setLocations(new Set(JSON.parse(savedLocations)))
-    }
-  }, [])
+  const toggle = (key: keyof JobFilters, value: string) => {
+    onFiltersChange((prev) => {
+      const nextValues = new Set(prev[key])
+      if (nextValues.has(value)) {
+        nextValues.delete(value)
+      } else {
+        nextValues.add(value)
+      }
 
-  useEffect(() => {
-    window.localStorage.setItem('sidebar-employment', JSON.stringify(Array.from(employment)))
-  }, [employment])
-
-  useEffect(() => {
-    window.localStorage.setItem('sidebar-experience', JSON.stringify(Array.from(experience)))
-  }, [experience])
-
-  useEffect(() => {
-    window.localStorage.setItem('sidebar-recency', JSON.stringify(Array.from(recency)))
-  }, [recency])
-
-  useEffect(() => {
-    window.localStorage.setItem('sidebar-locations', JSON.stringify(Array.from(locations)))
-  }, [locations])
-
-  const toggle = (
-    set: React.Dispatch<React.SetStateAction<Set<string>>>,
-    value: string
-  ) => {
-    set((prev) => {
-      const next = new Set(prev)
-      if (next.has(value)) next.delete(value)
-      else next.add(value)
-      return next
+      return {
+        ...prev,
+        [key]: Array.from(nextValues),
+      }
     })
   }
 
+  const toggleRecency = (value: string) => {
+    onFiltersChange((prev) => ({
+      ...prev,
+      recency: prev.recency[0] === value ? [] : [value],
+    }))
+  }
+
   const clearAll = () => {
-    setEmployment(new Set())
-    setExperience(new Set())
-    setRecency(new Set())
-    setLocations(new Set())
+    onFiltersChange({
+      employment: [],
+      experience: [],
+      recency: [],
+      locations: [],
+    })
     setLocationQuery('')
   }
 
@@ -188,7 +181,7 @@ export default function Sidebar() {
                 key={type}
                 id={`emp-${type}`}
                 checked={employment.has(type)}
-                onChange={() => toggle(setEmployment, type)}
+                onChange={() => toggle('employment', type)}
                 icon={employmentIcons[type]}
                 label={type}
               />
@@ -204,7 +197,7 @@ export default function Sidebar() {
                 key={level}
                 id={`exp-${level}`}
                 checked={experience.has(level)}
-                onChange={() => toggle(setExperience, level)}
+                onChange={() => toggle('experience', level)}
                 icon={experienceIcons[level]}
                 label={level}
               />
@@ -238,7 +231,7 @@ export default function Sidebar() {
                       type="button"
                       onMouseDown={(event) => event.preventDefault()}
                       onClick={() => {
-                        toggle(setLocations, location)
+                        toggle('locations', location)
                         setLocationQuery('')
                         setIsLocationFocused(true)
                       }}
@@ -276,7 +269,7 @@ export default function Sidebar() {
                 <button
                   key={location}
                   type="button"
-                  onClick={() => toggle(setLocations, location)}
+                  onClick={() => toggle('locations', location)}
                   className="inline-flex items-center gap-1 rounded-full bg-[#eef3ff] px-3 py-1.5 text-xs font-medium text-[#5e86d2] transition hover:bg-[#e2ebff]"
                 >
                   <span>{location}</span>
@@ -295,9 +288,10 @@ export default function Sidebar() {
                 key={option}
                 id={`recency-${option}`}
                 checked={recency.has(option)}
-                onChange={() => toggle(setRecency, option)}
+                onChange={() => toggleRecency(option)}
                 icon={recencyIcons[option]}
                 label={option}
+                type="radio"
               />
             ))}
           </ul>

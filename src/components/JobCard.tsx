@@ -1,7 +1,7 @@
 'use client'
 
 import { Briefcase, MapPin, Clock, Check, ChevronRight } from 'lucide-react'
-import type { Job } from './JobList'
+import type { Job } from './jobTypes'
 
 interface JobCardProps {
   job: Job
@@ -89,7 +89,7 @@ export default function JobCard({ job }: JobCardProps) {
             </span>
           </a>
           <a
-            href={job.postUrl}
+            href={job.postUrl} target="_blank" rel="noopener noreferrer" 
             className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400 hover:text-gray-900"
           >
             View Details
