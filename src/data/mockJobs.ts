@@ -16,7 +16,7 @@ export interface Job {
 }
 
 // Placeholder avatars in a LinkedIn-style silhouette treatment.
-const avatar = () =>
+export const defaultAvatar = () =>
   `data:image/svg+xml,${encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
       <circle cx="16" cy="16" r="16" fill="#e6e1db"/>
@@ -26,10 +26,10 @@ const avatar = () =>
   )}`
 
 export const recruiters: Recruiter[] = [
-  { id: '1', name: 'Sarah Jenkins', avatar: avatar() },
-  { id: '2', name: 'Marcus Chen', avatar: avatar() },
-  { id: '3', name: 'Emily Rodriguez', avatar: avatar() },
-  { id: '4', name: 'David Kim', avatar: avatar() },
+  { id: '1', name: 'Sarah Jenkins', avatar: defaultAvatar() },
+  { id: '2', name: 'Marcus Chen', avatar: defaultAvatar() },
+  { id: '3', name: 'Emily Rodriguez', avatar: defaultAvatar() },
+  { id: '4', name: 'David Kim', avatar: defaultAvatar() },
 ]
 
 export const jobs: Job[] = [

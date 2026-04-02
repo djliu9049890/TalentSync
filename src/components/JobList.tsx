@@ -3,9 +3,29 @@
 import { useState } from 'react'
 import { Sparkles } from 'lucide-react'
 import JobCard from './JobCard'
-import { jobs } from '@/data/mockJobs'
 
-export default function JobList() {
+export type Job = {
+  id: string
+  title: string
+  company: string
+  location: string
+  postedAt: string
+  salary: string
+  skills: string[]
+  postedBy: {
+    id: string
+    name: string
+    avatar: string
+    url: string
+  }
+  postUrl: string
+}
+
+interface JobListProps {
+  jobs: Job[]
+}
+
+export default function JobList({ jobs }: JobListProps) {
   const [tab, setTab] = useState<'latest' | 'popular'>('latest')
 
   return (

@@ -1,8 +1,48 @@
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
 import JobList from '@/components/JobList'
+import { Job } from '@/components/JobList'
+import { supabase } from '@/lib/supabase'
+import { defaultAvatar } from '@/data/mockJobs'
 
-export default function Home() {
+export default async function Home() {
+  const { data, error } = await supabase
+    .from('posts')
+    .select(`
+      id,
+      job_title,
+      company,
+      location,
+      salary,
+      skills,
+      posted_at,
+      hiring_contact_name,
+      hiring_contact_linkedin_url,
+      recruiter_id,
+      linkedin_post_url
+    `).order('posted_at', { ascending: false })
+
+  if (error) {
+    console.error('Supabase error: ', error)
+  }
+
+  const jobs: Job[] = (data ?? []).map( (post) => ({
+    id: String(post.id),
+    title: post.job_title ?? 'Untitled Role',
+    company: post.company ?? 'Unknown Company',
+    location: post.location ?? 'Unknown Location',
+    postedAt: post.posted_at,
+    salary: post.salary ?? 'Salary not listed',
+    skills: post.skills ?? [],
+    postedBy: {
+      id: post.recruiter_id,
+      name: post.hiring_contact_name,
+      url: post.hiring_contact_linkedin_url,
+      avatar: defaultAvatar()
+    },
+    postUrl: post.linkedin_post_url
+  }))
+
   return (
     <div className="min-h-screen flex flex-col bg-[#f8faf8]">
       <Header />
@@ -13,7 +53,7 @@ export default function Home() {
         </div>
         <div className="relative flex-1 min-w-0">
           <div className="mx-auto pl-20 pr-10">
-            <JobList />
+            <JobList jobs={jobs} />
           </div>
         </div>
       </main>

@@ -1,13 +1,38 @@
 'use client'
 
 import { Briefcase, MapPin, Clock, Check, ChevronRight } from 'lucide-react'
-import type { Job } from '@/data/mockJobs'
+import type { Job } from './JobList'
 
 interface JobCardProps {
   job: Job
 }
 
+function formatPostedTime(postedAt: string) {
+  const postedDate = new Date(postedAt)
+
+  if (Number.isNaN(postedDate.getTime())) {
+    return postedAt
+  }
+
+  const diffMs = Date.now() - postedDate.getTime()
+  const diffDays = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
+
+  if (diffDays < 7) {
+    return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`
+  }
+
+  if (diffDays < 30) {
+    const diffWeeks = Math.ceil(diffDays / 7)
+    return `${diffWeeks} week${diffWeeks === 1 ? '' : 's'} ago`
+  }
+
+  const diffMonths = Math.ceil(diffDays / 30)
+  return `${diffMonths} month${diffMonths === 1 ? '' : 's'} ago`
+}
+
 export default function JobCard({ job }: JobCardProps) {
+  const postedTimeLabel = formatPostedTime(job.postedAt)
+
   return (
     <article className="group flex gap-6">
       <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500 transition-colors group-hover:text-gray-800">
@@ -16,7 +41,7 @@ export default function JobCard({ job }: JobCardProps) {
 
       <div className="min-w-0 flex-1 flex flex-col gap-[2px]">
         <div className="flex items-start justify-between gap-4">
-          <h3 className="font-semibold text-gray-900">{job.title}</h3>
+          <h3 className="font-semibold text-gray-900 max-w-[500px]">{job.title}</h3>
           <div className="shrink-0 font-semibold text-gray-900">{job.salary}</div>
         </div>
         <div className="flex items-start justify-between gap-4">
@@ -27,18 +52,18 @@ export default function JobCard({ job }: JobCardProps) {
                 </span>
                 {job.company}
               </span>
-              <span className="flex items-center gap-1 font-[450]">
-                <MapPin className="h-4 w-4" />
-                {job.location}
+              <span className="flex min-w-0 max-w-[250px] items-center gap-1 font-[450]">
+                <MapPin className="h-4 w-4 shrink-0" />
+                <span className="truncate whitespace-nowrap">{job.location}</span>
               </span>
               <span className="flex items-center gap-1 font-[450]">
                 <Clock className="h-4 w-4" />
-                {job.postedAt}
+                {postedTimeLabel}
               </span>
             </div>
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap gap-2 max-w-[500px]">
           {job.skills.map((skill) => (
             <span
               key={skill}
@@ -51,7 +76,7 @@ export default function JobCard({ job }: JobCardProps) {
 
         <div className="mt-1 flex items-center justify-between">
           <a
-            href="#"
+            href={job.postedBy.url}
             className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-gray-50"
           >
             <img
@@ -64,7 +89,7 @@ export default function JobCard({ job }: JobCardProps) {
             </span>
           </a>
           <a
-            href="#"
+            href={job.postUrl}
             className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400 hover:text-gray-900"
           >
             View Details
