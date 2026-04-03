@@ -175,7 +175,7 @@ export default function JobsView({ searchQuery }: JobsViewProps) {
 
   return (
     <>
-      <div className="relative sticky top-0 self-start">
+      <div className="sticky top-28 self-start">
         <Sidebar filters={filters} onFiltersChange={setFilters} />
       </div>
       <div className="relative flex-1 min-w-0">

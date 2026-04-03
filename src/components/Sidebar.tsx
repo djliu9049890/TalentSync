@@ -153,7 +153,7 @@ export default function Sidebar({ filters, onFiltersChange }: SidebarProps) {
   const shouldShowLocationResults = isLocationFocused && filteredLocations.length > 0
 
   return (
-    <aside className="flex w-72 shrink-0 flex-col gap-4">
+    <aside className="scrollbar-hide flex max-h-[calc(100vh-7rem)] w-72 shrink-0 flex-col gap-4 overflow-y-auto">
       <div className="rounded-[22px] border border-[#e8edf2] bg-white p-7 shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
         <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
