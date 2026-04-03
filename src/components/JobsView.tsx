@@ -28,6 +28,10 @@ const defaultFilters: JobFilters = {
   locations: [],
 }
 
+interface JobsViewProps {
+  searchQuery: string
+}
+
 function mapPostsToJobs(posts: SupabasePostRow[]) {
   return posts.map((post) => ({
     id: String(post.id),
@@ -47,10 +51,25 @@ function mapPostsToJobs(posts: SupabasePostRow[]) {
   }))
 }
 
-export default function JobsView() {
+function sanitizeSearchValue(value: string) {
+  return value.trim().replace(/[%(),{}"]/g, '').replace(/\\/g, '')
+}
+
+export default function JobsView({ searchQuery }: JobsViewProps) {
   const [filters, setFilters] = useState<JobFilters>(defaultFilters)
   const [jobs, setJobs] = useState<Job[]>([])
   const [hasLoadedFilters, setHasLoadedFilters] = useState(false)
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery)
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+    }, 300)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [searchQuery])
 
   useEffect(() => {
     const savedEmployment = window.localStorage.getItem('sidebar-employment')
@@ -135,6 +154,11 @@ export default function JobsView() {
         query = query.or(locationClauses.join(','))
       }
 
+      const searchTerm = sanitizeSearchValue(debouncedSearchQuery)
+      if (searchTerm) {
+        query = query.ilike('search_text', `%${searchTerm.toLowerCase()}%`)
+      }
+
       const { data, error } = await query
 
       if (error) {
@@ -147,7 +171,7 @@ export default function JobsView() {
     }
 
     loadJobs()
-  }, [filters, hasLoadedFilters])
+  }, [filters, hasLoadedFilters, debouncedSearchQuery])
 
   return (
     <>

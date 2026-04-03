@@ -2,7 +2,15 @@
 
 import { Briefcase, Search } from 'lucide-react'
 
-export default function Header() {
+interface HeaderProps {
+  searchQuery: string
+  onSearchQueryChange: (value: string) => void
+}
+
+export default function Header({
+  searchQuery,
+  onSearchQueryChange,
+}: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
       <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-4 px-4 py-6 sm:px-6 lg:px-10">
@@ -17,7 +25,9 @@ export default function Header() {
           <Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <input
             type="search"
+            value={searchQuery}
             placeholder="Search by title, company, or skills..."
+            onChange={(event) => onSearchQueryChange(event.target.value)}
             className="font-[490] w-full rounded-lg border border-gray-200 bg-gray-50 py-4 pl-[51px] pr-4 text-sm placeholder:text-gray-500 focus:border-gray-300 focus:bg-white focus:outline-none focus:ring-1 focus:ring-gray-300"
           />
         </div>
