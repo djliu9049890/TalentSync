@@ -67,6 +67,19 @@ That migration adds structured extraction columns such as `job_title`,
 `salary`, `hiring_contact_name`, `hiring_contact_linkedin_url`, and
 `extraction_payload`.
 
+If you want the browser-based Supabase client to read `posts` safely with RLS
+enabled, also apply:
+
+```bash
+psql "$DATABASE_URL" -f backend/migrations/20260405_enable_posts_rls.sql
+```
+
+That migration:
+
+- enables RLS on `posts`
+- allows `anon` and `authenticated` roles to `SELECT` from `posts`
+- leaves writes locked down
+
 ## 5. Scheduled jobs
 
 - `python -m backend.crawler_main` selects recruiters whose `crawl_slot_hour`

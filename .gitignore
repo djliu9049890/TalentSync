@@ -44,3 +44,6 @@ backend/__pycache__/
 backend/debugging/linkedin_gkangj_rendered.html
 backend/debugging/__pycache__/
 backend/debugging/parser_output/
+
+# vscode settings
+.vscode/
